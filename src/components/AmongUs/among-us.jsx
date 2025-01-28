@@ -433,5 +433,6 @@ export function AmongUs() {
                 <button type="submit" id="reset" className="btn" onClick={resetGame}>Reset game</button>
             </section>
         </main>
-    );
+
+);
 }
