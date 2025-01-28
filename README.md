@@ -53,22 +53,23 @@ For the moment, I just made a simple switch() for the impostor's algorithm, but 
 
 It will open the project in your browser.
 
--------
-
 Thank you to look at this project.
 
 Have a good day
+
+-------
 
 BUFFARD Alexandre, full stack web developer
 @ : [buffaralex492@hotmail.fr](buffardalex492@hotmail.fr)
 LinkedIn profile : [https://www.linkedin.com/in/alexandre-buffard-973997153/](https://www.linkedin.com/in/alexandre-buffard-973997153/)
 
+-------
 
 © 2025 Alexandre BUFFARD. All rights reserved.
 
 This project, including its source code and associated content, is protected by copyright laws. Any unauthorized reproduction, distribution, or use, in whole or in part, is strictly prohibited without prior written permission from the author.
 
-For any inquiries or permission requests, please contact: buffardalex492@hotmail.fr.
+For any inquiries or permission requests, please contact: [buffardalex492@hotmail.fr](buffardalex492@hotmail.fr).
 
 --------------
 
@@ -76,4 +77,4 @@ For any inquiries or permission requests, please contact: buffardalex492@hotmail
 
 Ce projet, incluant son code source et ses contenus associés, est protégé par les lois relatives aux droits d'auteur. Toute reproduction, distribution ou utilisation non autorisée, en tout ou en partie, est strictement interdite sans l'accord préalable écrit de l'auteur.
 
-Pour toute question ou demande d'autorisation, veuillez contacter : buffardalex492@hotmail.fr.
+Pour toute question ou demande d'autorisation, veuillez contacter : [buffardalex492@hotmail.fr](buffardalex492@hotmail.fr).
