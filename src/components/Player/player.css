@@ -1,0 +1,20 @@
+.players-list .player {
+    width: 40%;
+    margin: 10px 2.5%;
+    text-align: center;
+}
+
+.infos {
+    height: 35px;
+    text-transform: uppercase;
+}
+
+.crewmate {
+    text-decoration: underline #1a8a32;
+    color: #1a8a32;
+}
+
+.impostor {
+    text-decoration: underline #b61515;
+    color: #b61515;
+}
