@@ -60,7 +60,9 @@ Have a good day
 -------
 
 BUFFARD Alexandre, full stack web developer
+
 @ : [buffaralex492@hotmail.fr](buffardalex492@hotmail.fr)
+
 LinkedIn profile : [https://www.linkedin.com/in/alexandre-buffard-973997153/](https://www.linkedin.com/in/alexandre-buffard-973997153/)
 
 -------
