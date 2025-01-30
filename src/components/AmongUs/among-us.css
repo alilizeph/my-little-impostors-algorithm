@@ -45,12 +45,19 @@ header {
 }
 
 .btns {
+    width: 75%;
+    margin-left: 12.5%;
+}
+
+.btns section {
     display: flex;
     justify-content: center;
+    flex-flow: row wrap;
+
 }
 
 .btn {
-    width: 15%;
+    width: 250px;
     padding: 15px 0;
     margin: 15px;
 }

@@ -180,6 +180,7 @@ export function AmongUs() {
 
     const [gameStarted, setGameStarted] = useState(false);
     const [count, setCount] = useState(0);
+    const [countMulti, setCountMulti] = useState(0);
 
     function setPlayerToCrewmate(player) {
         if (typeof player === 'object' && player !== null) {
@@ -200,14 +201,16 @@ export function AmongUs() {
     }
 
     function updateIntervalImpostors() {
-        let minInterval = 1;
+        let cumulativeWeight = 0;
 
         players.forEach(player => {
-            let maxInterval = minInterval + player.impostorWeight - 1;
-            player.intervalImpostorWeight = [minInterval, maxInterval];
-            minInterval = maxInterval + 1;
+            let min = cumulativeWeight;
+            let max = cumulativeWeight + player.impostorWeight;
+            player.intervalImpostorWeight = [min, max];
+            cumulativeWeight = max; // Mise à jour du poids total cumulé
         });
     }
+
 
     function updateStreaks(player) {
         if(player.role === 'impostor') {
@@ -219,26 +222,28 @@ export function AmongUs() {
         }
     }
 
-    const levelsImpostor = [85, 65, 70, 40, 30, 35, 25, 0];
-    const levelsCrewmate = [100, 110, 130, 150, 180, 200];
+    const levelsImpostor = [80, 60, 40, 25];
+    const levelsCrewmate = [100, 120, 130, 150];
 
     function setImpostorWeight(player) {
-        if(player.streakImpostor > 0) {
-            const index = Math.min(player.streakImpostor - 1, levelsImpostor.length - 1);
-            player.impostorWeight = levelsImpostor[index];
-        } else if(player.streakCrewmate > 0) {
-            const index = Math.min(player.streakCrewmate -1, levelsCrewmate.length - 1);
-            player.impostorWeight = levelsCrewmate[index];
+        if (player.streakImpostor > 0) {
+            let index = Math.min(player.streakImpostor - 1, levelsImpostor.length - 1);
+            player.impostorWeight = levelsImpostor[index] ?? 100; // Sécurité si tableau vide
+        } else if (player.streakCrewmate > 0) {
+            let index = Math.min(player.streakCrewmate - 1, levelsCrewmate.length - 1);
+            player.impostorWeight = levelsCrewmate[index] ?? 100;
         } else {
             player.impostorWeight = 100;
         }
 
-        //updateIntervalImpostors(player);
+        updateIntervalImpostors(player);
     }
 
+
     function calculateImpostorsValue(totalImpostorWeight) {
-        return Math.random() * (totalImpostorWeight - 1) + 1;
+        return Math.random() * totalImpostorWeight;
     }
+
 
     function calculateAverageImpostorRatio() {
         let total = 0;
@@ -255,64 +260,81 @@ export function AmongUs() {
     }
 
     function determinePlayerRole(totalImpostorWeight) {
+        let firstImpostorIndex = -1;
+        let secondImpostorIndex = -1;
+
         const firstImpostorValue = calculateImpostorsValue(totalImpostorWeight);
         let secondImpostorValue;
 
-        // Évite que les deux valeurs soient identiques
-        do {
+        // Trouver le premier imposteur
+        players.forEach((player, index) => {
+            const [min, max] = player.intervalImpostorWeight;
+            if (firstImpostorValue >= min && firstImpostorValue <= max) {
+                firstImpostorIndex = index;
+            }
+        });
+
+        // Assurer que le deuxième imposteur est bien différent du premier
+        while (secondImpostorIndex === -1 || secondImpostorIndex === firstImpostorIndex) {
             secondImpostorValue = calculateImpostorsValue(totalImpostorWeight);
-        } while (secondImpostorValue === firstImpostorValue);
 
-        let impostorsSelected = 0;
+            players.forEach((player, index) => {
+                const [min, max] = player.intervalImpostorWeight;
+                if (
+                    index !== firstImpostorIndex && // Vérifie que ce n'est pas le même imposteur
+                    secondImpostorValue >= min &&
+                    secondImpostorValue <= max
+                ) {
+                    secondImpostorIndex = index;
+                }
+            });
+        }
 
-        if(!gameStarted)
-            players.forEach(player => player.impostorWeight = 100 );
+        // Mise à jour des joueurs
+        let newPlayers = players.map((player, index) => {
+            let updatedPlayer = { ...player };
 
-
-        return players.map(player => {
-            const updatedPlayer = { ...player };
-
-            if (
-                impostorsSelected < 2 &&
-                firstImpostorValue >= player.intervalImpostorWeight[0] &&
-                firstImpostorValue <= player.intervalImpostorWeight[1]
-            ) {
+            if (index === firstImpostorIndex || index === secondImpostorIndex) {
                 setPlayerToImpostor(updatedPlayer);
-                impostorsSelected++;
-                setImpostorWeight(player);
-            } else if (
-                impostorsSelected < 2 &&
-                secondImpostorValue >= player.intervalImpostorWeight[0] &&
-                secondImpostorValue <= player.intervalImpostorWeight[1]
-            ) {
-                setPlayerToImpostor(updatedPlayer);
-                impostorsSelected++;
             } else {
                 setPlayerToCrewmate(updatedPlayer);
             }
 
             updateValues(updatedPlayer);
-
             updateStreaks(updatedPlayer);
             setImpostorWeight(updatedPlayer);
 
-
             return updatedPlayer;
         });
-    }
 
-    function updateValues(player) {
-        if(player.role === 'impostor') {
-            player.nbImpostor++;
-            setImpostorWeight(player);
-        } else if(player.role === 'crewmate') {
-            player.nbCrewmate++;
+        setPlayers(newPlayers);
+
+        // Vérification et log des imposteurs
+        const impostorsSelected = newPlayers.filter(p => p.role === "impostor").length;
+        console.log(`Impostor's number : ${impostorsSelected}`);
+        if (impostorsSelected !== 2) {
+            console.error("❌ ERROR : Bad impostors number !");
         }
 
-        calculateRatioCrewmate(player);
-        calculateRatioImpostor(player);
-        calculateRoleDifference(player);
-        calculateRoleVariance(player);
+        return newPlayers;
+    }
+
+
+    function updateValues(player) {
+        let updatedPlayer = player;
+
+
+        if(updatedPlayer.role === 'impostor') {
+            updatedPlayer.nbImpostor++;
+            setImpostorWeight(updatedPlayer);
+        } else if(updatedPlayer.role === 'crewmate') {
+            updatedPlayer.nbCrewmate++;
+        }
+
+        calculateRatioCrewmate(updatedPlayer);
+        calculateRatioImpostor(updatedPlayer);
+        calculateRoleDifference(updatedPlayer);
+        calculateRoleVariance(updatedPlayer);
     }
 
     function calculateRatioCrewmate(player) {
@@ -322,6 +344,7 @@ export function AmongUs() {
         const total = nbImpostor + nbCrewmate;
         player.ratioCrewmate = total > 0 ? nbCrewmate / total : 0;
     }
+
 
     function calculateRatioImpostor(player) {
         const nbCrewmate = player.nbCrewmate;
@@ -354,6 +377,7 @@ export function AmongUs() {
 
     function resetGame() {
         setCount(0);
+        setCountMulti(0);
         setGameStarted(false);
 
         players.forEach(player => {
@@ -368,6 +392,115 @@ export function AmongUs() {
         );
     }
 
+    function controlImpostorNumber() {
+        return players.filter(player => player.role === 'impostor').length;
+    }
+
+    function determineRoleForMultipleRun(totalImpostorWeight) {
+        let firstImpostorIndex = -1;
+        let secondImpostorIndex = -1;
+
+        const firstImpostorValue = calculateImpostorsValue(totalImpostorWeight);
+        let secondImpostorValue;
+
+        players.forEach((player, index) => {
+            const [min, max] = player.intervalImpostorWeight;
+            if (firstImpostorValue >= min && firstImpostorValue <= max) {
+                firstImpostorIndex = index;
+            }
+        });
+
+        // Assurer que le deuxième imposteur est bien différent du premier
+        while (secondImpostorIndex === -1 || secondImpostorIndex === firstImpostorIndex) {
+            secondImpostorValue = calculateImpostorsValue(totalImpostorWeight);
+
+            players.forEach((player, index) => {
+                const [min, max] = player.intervalImpostorWeight;
+                if (
+                    index !== firstImpostorIndex && // Vérifie que ce n'est pas le même imposteur
+                    secondImpostorValue >= min &&
+                    secondImpostorValue <= max
+                ) {
+                    secondImpostorIndex = index;
+                }
+            });
+        }
+
+        while (firstImpostorIndex === secondImpostorIndex) {
+            const firstImpostorValue = calculateImpostorsValue(totalImpostorWeight);
+            const secondImpostorValue = calculateImpostorsValue(totalImpostorWeight);
+
+            players.forEach((player, index) => {
+                if (
+                    firstImpostorIndex === -1 &&
+                    firstImpostorValue >= player.intervalImpostorWeight[0] &&
+                    firstImpostorValue <= player.intervalImpostorWeight[1]
+                ) {
+                    firstImpostorIndex = index;
+                } else if (
+                    secondImpostorIndex === -1 &&
+                    secondImpostorValue >= player.intervalImpostorWeight[0] &&
+                    secondImpostorValue <= player.intervalImpostorWeight[1]
+                ) {
+                    secondImpostorIndex = index;
+                }
+            });
+        }
+
+        let newPlayers = players.map((player, index) => {
+            if (index === firstImpostorIndex || index === secondImpostorIndex) {
+                setPlayerToImpostor(player);
+            } else {
+                setPlayerToCrewmate(player);
+            }
+
+            updateValues(player);
+            updateStreaks(player);
+            setImpostorWeight(player);
+
+            return player;
+        });
+
+        setPlayers(newPlayers);
+
+        console.log("Nombre d'imposteurs après plusieurs runs:", controlImpostorNumber());
+        if (controlImpostorNumber() !== 2) {
+            console.error("Erreur ! Le nombre d'imposteurs est incorrect après un run multiple.");
+        }
+
+        return newPlayers;
+    }
+
+
+
+    function runGameSimulation() {
+        if (!Array.isArray(players) || players.length === 0) {
+            console.error("Players array is invalid or empty.");
+            return;
+        }
+
+        const totalImpostorWeight = players.reduce((acc, player) => acc + player.impostorWeight, 0);
+        const newPlayers = determineRoleForMultipleRun(totalImpostorWeight, players);
+
+        setPlayers(newPlayers);
+
+        return players;
+    }
+
+    function runMultipleGames(nbGames) {
+        let newPlayers = [...players];
+
+        for(let currentGame = 0; currentGame < nbGames; currentGame++) {
+            newPlayers = runGameSimulation(newPlayers);
+        }
+
+        setPlayers(newPlayers);
+
+        setGameStarted(true);
+        setCountMulti(countMulti + nbGames);
+    }
+
+
     function calculateRoleDifference(player) {
         const nbCrewmate = player.nbCrewmate;
         const nbImpostor = player.nbImpostor;
@@ -377,7 +510,7 @@ export function AmongUs() {
         return player.roleDifference;
     }
 
-    function calculateGlobalImbalance(players) {
+    function calculateGlobalImbalance() {
         let totalDifference = 0;
 
         players.forEach(player => {
@@ -399,8 +532,10 @@ export function AmongUs() {
         const gamesPlayed = nbCrewmate + nbImpostor;
         const average = gamesPlayed / 2;
 
-        player.variance = Math.abs(nbCrewmate - average) + Math.abs(nbImpostor -average);
+        player.variance = Math.abs(nbCrewmate - average) + Math.abs(nbImpostor - average);
     }
+
+
 
     return (
         <main>
@@ -409,17 +544,49 @@ export function AmongUs() {
             </header>
             <section>
                 <section className="intro">
-                    {gameStarted ? <h2>Game n°{count}</h2> : <h2>Run the first game</h2>}
+                    {gameStarted ? <h2>Game n°{ count + countMulti }</h2> : <h2>Run your first game</h2>}
                 </section>
             </section>
 
             <section className="btns">
-                <button type="submit" id="run" className="btn" onClick={runNewGame}>Run game</button>
-                <button type="submit" id="reset" className="btn" onClick={resetGame}>Reset game</button>
+                <section>
+                    <button type="submit" id="run" className="btn"
+                            onClick={runNewGame}
+                    >
+                        Run game
+                    </button>
+                    <button type="submit" id="multiple" className="btn"
+                            onClick={() => runMultipleGames(10)}
+                    >
+                        Run 10 games
+                    </button>
+                    <button type="submit" id="multiple" className="btn"
+                            onClick={() => runMultipleGames(25)}
+                    >
+                        Run 25 games
+                    </button>
+                    <button type="submit" id="multiple" className="btn"
+                            onClick={() => runMultipleGames(50)}
+                    >
+                        Run 50 games
+                    </button>
+                    <button type="submit" id="multiple" className="btn"
+                            onClick={() => runMultipleGames(100)}
+                    >
+                        Run 100 games
+                    </button>
+                </section>
+                <section>
+                    <button type="submit" id="reset" className="btn"
+                            onClick={resetGame}
+                    >
+                        Reset game
+                    </button>
+                </section>
             </section>
             <section className="global-stats" style={{opacity: !gameStarted ? 0 : 1}}>
                 <h3>Statistics :</h3>
-                <p>Global Imbalance : {calculateGlobalImbalance(players)}</p>
+                <p>Global Imbalance : {calculateGlobalImbalance()}</p>
                 <p>Average ratio crewmates : {(calculateAverageCrewmateRatio() * 100).toFixed(2)} %</p>
                 <p>Average ratio impostors : {(calculateAverageImpostorRatio() * 100).toFixed(2)} %</p>
             </section>
@@ -429,10 +596,43 @@ export function AmongUs() {
                 ))}
             </section>
             <section className="btns">
-                <button type="submit" id="run" className="btn" onClick={runNewGame}>Run game</button>
-                <button type="submit" id="reset" className="btn" onClick={resetGame}>Reset game</button>
+                <section>
+
+                    <button type="submit" id="run" className="btn"
+                            onClick={runNewGame}
+                    >
+                        Run game
+                    </button>
+                    <button type="submit" id="multiple" className="btn"
+                            onClick={() => runMultipleGames(10, count + countMulti - 1)}
+                    >
+                        Run 10 games
+                    </button>
+                    <button type="submit" id="multiple" className="btn"
+                            onClick={() => runMultipleGames(25)}
+                    >
+                        Run 25 games
+                    </button>
+                    <button type="submit" id="multiple" className="btn"
+                            onClick={() => runMultipleGames(50)}
+                    >
+                        Run 50 games
+                    </button>
+                    <button type="submit" id="multiple" className="btn"
+                            onClick={() => runMultipleGames(100)}
+                    >
+                        Run 100 games
+                    </button>
+                </section>
+                <section>
+                    <button type="submit" id="reset" className="btn"
+                            onClick={resetGame}
+                    >
+                        Reset game
+                    </button>
+                </section>
             </section>
         </main>
 
-);
+    );
 }
