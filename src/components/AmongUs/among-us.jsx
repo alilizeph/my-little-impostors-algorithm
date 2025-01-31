@@ -1,14 +1,33 @@
 import {Player} from "../Player/player";
 import './among-us.css';
 import {useState} from "react";
+import {Statistics} from "../Statistics/statistics";
 
 
 
-export function AmongUs() {
+export function AmongUs(totalImpostorWeight) {
+        /**
+         * players list state
+         * @property { object } player = {
+         *     @property number id
+         *     @property string name
+         *     @property string role = null | "Impostor" | "Crewmate"
+         *     @property Array intervalImpostorWeight
+         *     @property number impostorWeight
+         *     @property number nbImpostor
+         *     @property number nbCrewmate
+         *     @property number streakImpostor
+         *     @property number streakImpostor
+         *     @property number roleDifference
+         *     @property number variance
+         *     @property string color: string
+         *     @property Array roleHistory
+         * }
+         * */
     const [players, setPlayers] = useState([
         {
             id: 1,
-            name:"SUSSYBAKA",
+            name:"🎩 SUSSYBAKA 🎩",
             role: '',
             impostorWeight: 100,
             intervalImpostorWeight: [1, 100],
@@ -25,7 +44,7 @@ export function AmongUs() {
         },
         {
             id: 2,
-            name: "DFG",
+            name: "🕶️ DFG 🕶️",
             role: '',
             impostorWeight: 100,
             intervalImpostorWeight: [101, 200],
@@ -37,12 +56,12 @@ export function AmongUs() {
             ratioCrewmate: 0,
             roleDifference: 0,
             variance: 0,
-            color: "#8e8686",
+            color: "#676262",
             roleHistory: []
         },
         {
             id: 3,
-            name: "MisterJDay",
+            name: "🧀 MisterJDay 🧀",
             role: '',
             impostorWeight: 100,
             intervalImpostorWeight: [201, 300],
@@ -59,7 +78,7 @@ export function AmongUs() {
         },
         {
             id: 4,
-            name: "Flangle",
+            name: "🦆 Flangle 🦆",
             role: '',
             impostorWeight: 100,
             intervalImpostorWeight: [301, 400],
@@ -76,7 +95,7 @@ export function AmongUs() {
         },
         {
             id: 5,
-            name: "Clemovitch",
+            name: "🍷 Clemovitch 🍷",
             role: '',
             impostorWeight: 100,
             intervalImpostorWeight: [401, 500],
@@ -93,7 +112,7 @@ export function AmongUs() {
         },
         {
             id: 6,
-            name: "Natoo",
+            name: "🧠 Natoo 🧠",
             role: '',
             impostorWeight: 100,
             intervalImpostorWeight: [501, 600],
@@ -110,7 +129,7 @@ export function AmongUs() {
         },
         {
             id: 7,
-            name: "JDG",
+            name: "👷 JDG 👷",
             role: '',
             impostorWeight: 100,
             intervalImpostorWeight: [601, 700],
@@ -127,7 +146,7 @@ export function AmongUs() {
         },
         {
             id: 8,
-            name: "Gomart",
+            name: "🐱 Gom4rt 🐱",
             role:  '',
             impostorWeight: 100,
             intervalImpostorWeight: [701, 800],
@@ -144,7 +163,7 @@ export function AmongUs() {
         },
         {
             id: 9,
-            name: "Mynthos",
+            name: "👨‍🍳 Mynthos 👨‍🍳",
             role: '',
             impostorWeight: 100,
             intervalImpostorWeight: [801, 900],
@@ -161,7 +180,7 @@ export function AmongUs() {
         },
         {
             id: 10,
-            name: "BagheraJones",
+            name: "🧻 BagheraJones 🧻",
             role: '',
             impostorWeight: 100,
             intervalImpostorWeight: [901, 1000],
@@ -178,10 +197,17 @@ export function AmongUs() {
         }
     ]);
 
+        // project's features states
     const [gameStarted, setGameStarted] = useState(false);
     const [count, setCount] = useState(0);
     const [countMulti, setCountMulti] = useState(0);
 
+
+    /**
+     * @description - set player's role to "Crewmate" (player.role)
+     *  @param { Object } player - the player whose his role will be changed to "Crewmate"
+     *  @returns { void } - this function doesn't return anything
+     * */
     function setPlayerToCrewmate(player) {
         if (typeof player === 'object' && player !== null) {
             player.role = 'crewmate';
@@ -191,6 +217,11 @@ export function AmongUs() {
         }
     }
 
+    /**
+     *  @description - set player's role to "Impostor" (player.role)
+     *  @param { Object } player - the player whose his role will be changed to "Impostor"
+     *  @returns { void } - this function doesn't return anything
+     * */
     function setPlayerToImpostor(player) {
         if (typeof player === 'object' && player !== null) {
             player.role = 'impostor';
@@ -200,6 +231,10 @@ export function AmongUs() {
         }
     }
 
+        /**
+         * @description = updates player's impostor interval (player.intervalImpostorWeight)
+         *  @returns { void } - this function doesn't return anything
+         * */
     function updateIntervalImpostors() {
         let cumulativeWeight = 0;
 
@@ -212,6 +247,11 @@ export function AmongUs() {
     }
 
 
+        /**
+         *  @description = updates streaks players (player.streakImpostor && player.streakCrewmate)
+         *  @param { Object } player - the player whose his impostor's and crewmate's streak will be updated
+         *  @returns { void } - this function doesn't return anything
+         * */
     function updateStreaks(player) {
         if(player.role === 'impostor') {
             player.streakImpostor++;
@@ -222,9 +262,125 @@ export function AmongUs() {
         }
     }
 
-    const levelsImpostor = [80, 60, 40, 25];
-    const levelsCrewmate = [100, 120, 130, 150];
 
+
+        /**
+         * @description - calculates impostors ratio
+         * @returns { number } - this function returns integer
+         * */
+    function calculateAverageImpostorRatio() {
+        let total = 0;
+        players.map(player => total += player.ratioImpostor );
+
+        return total / 10;
+    }
+
+
+        /**
+         * @description - updates player's crewmate's ratio
+         * @param { Object } player - The player for which his crewmate's ratio will be updated
+         * @returns { void } - this function doesn't return anything
+         */
+    function calculateRatioCrewmate(player) {
+        const nbCrewmate = player.nbCrewmate;
+        const nbImpostor = player.nbImpostor;
+
+        const total = nbImpostor + nbCrewmate;
+        player.ratioCrewmate = total > 0 ? nbCrewmate / total : 0;
+    }
+
+
+    /**
+     * @description - updates player's impostor's ratio
+     * @param {Object} player - The player for which his impostor's ratio will be updated
+     * @returns {void} - this function doesn't return anything
+     */
+    function calculateRatioImpostor(player) {
+        const nbCrewmate = player.nbCrewmate;
+        const nbImpostor = player.nbImpostor;
+
+        const total = nbImpostor + nbCrewmate;
+        player.ratioImpostor = total > 0 ? nbImpostor / total : 0;
+    }
+
+    /**
+     * @description - calculates crewmates ratio
+     * @returns { number } - this function returns integer
+     * */
+    function calculateAverageCrewmateRatio() {
+        let total = 0;
+        players.map(player => total += player.ratioCrewmate);
+
+        return total / 10;
+    }
+
+
+
+                // FUNCTION CALCULATING GLOBAL PROPERTIES
+
+        /**
+         * @description - this function calculates the player's role difference
+         * @param { Object } player -
+         * @returns {number} - this function returns number
+         */
+    function calculateRoleDifference(player) {
+        const nbCrewmate = player.nbCrewmate;
+        const nbImpostor = player.nbImpostor;
+
+        player.roleDifference = Math.abs(nbCrewmate - nbImpostor);
+
+        return player.roleDifference;
+    }
+
+
+    /**
+     * @description - this function calculates the global imbalance of Players Array state
+     * @returns { number } - this function returns number
+     */
+    function calculateGlobalImbalance() {
+        let totalDifference = 0;
+
+        players.forEach(player => {
+            const crewmateGames = player.nbCrewmate;
+            const impostorGames = player.nbImpostor;
+
+            const difference = Math.abs(crewmateGames - impostorGames);
+            totalDifference += difference;
+        });
+
+        return totalDifference;
+    }
+
+
+    /**
+     * @description - this function calculates the player's role variance
+     * @returns { Object } player - the player for whose role variance will be calculated
+     * @returns { void } - this function doesn't return anything
+     */
+    function calculateRoleVariance(player) {
+        const nbCrewmate = player.nbCrewmate;
+        const nbImpostor = player.nbImpostor;
+
+        const gamesPlayed = nbCrewmate + nbImpostor;
+        const average = gamesPlayed / 2;
+
+        player.variance = Math.abs(nbCrewmate - average) + Math.abs(nbImpostor - average);
+    }
+
+
+    /**
+         *  @description - corresponding to each update weight's updates
+         *  @const { Array } levelsImpostor - each updates when player.streakImpostor is updated
+         *  @const { Array } levelsCrewmate - each updates when player.streakCrewmate is updated
+         * */
+    const levelsImpostor = [80, 60, 40, 25, 15, 5];
+    const levelsCrewmate = [100, 100, 120, 130, 150, 200, 300];
+
+        /**
+         * @description - updates the impostor's weight after the role is changed
+         * @param { Object } player - the selected player whose his impostor's weight will be changed (by descending or ascending
+         * @returns { number } - this function returns integer
+         * */
     function setImpostorWeight(player) {
         if (player.streakImpostor > 0) {
             let index = Math.min(player.streakImpostor - 1, levelsImpostor.length - 1);
@@ -240,33 +396,34 @@ export function AmongUs() {
     }
 
 
+        /**
+         * @description = calculates the value for the next impostor
+         * @param totalImpostorWeight = the sum of all player's impostor's weight (integer)
+         * @returns { number } - this function returns integer
+         * */
     function calculateImpostorsValue(totalImpostorWeight) {
         return Math.random() * totalImpostorWeight;
     }
 
 
-    function calculateAverageImpostorRatio() {
-        let total = 0;
-        players.map(player => total += player.ratioImpostor );
-
-        return total / 10;
-    }
-
-    function calculateAverageCrewmateRatio() {
-        let total = 0;
-        players.map(player => total += player.ratioCrewmate);
-
-        return total / 10;
-    }
-
+        /**
+         *  @description = determines the player's role for the next game
+         *  @param { number } totalImpostorWeight = the sum of all player's impostor's weight (integer)
+         *  @returns { state } - the updated player's list
+         * */
     function determinePlayerRole(totalImpostorWeight) {
+            // impostors indexes to determine in which player's interval the 1st and 2nd impostor's values will be
         let firstImpostorIndex = -1;
         let secondImpostorIndex = -1;
 
+            /**
+             * the 1st and 2nd impostor's value && the 1st impostor's value calculating with calculateImpostorsValue()
+             * the value corresponds to a weight
+             * */
         const firstImpostorValue = calculateImpostorsValue(totalImpostorWeight);
         let secondImpostorValue;
 
-        // Trouver le premier imposteur
+            // determines in which player's weight's interval the 1st impostor's value is
         players.forEach((player, index) => {
             const [min, max] = player.intervalImpostorWeight;
             if (firstImpostorValue >= min && firstImpostorValue <= max) {
@@ -274,14 +431,21 @@ export function AmongUs() {
             }
         });
 
-        // Assurer que le deuxième imposteur est bien différent du premier
+            // determines in which player's weight's interval the 2nd impostor's value is by :
         while (secondImpostorIndex === -1 || secondImpostorIndex === firstImpostorIndex) {
+                // calculating 2nd impostor's value with calculateImpostorsValue()
             secondImpostorValue = calculateImpostorsValue(totalImpostorWeight);
 
+            /**
+             * checking that 2nd impostor's value isn't in the same weight's interval as the 1st value
+             * because it's in the same interval, we will have only one impostor,
+             * but it's not what we want in Among Us
+             */
+            // eslint-disable-next-line no-loop-func
             players.forEach((player, index) => {
                 const [min, max] = player.intervalImpostorWeight;
                 if (
-                    index !== firstImpostorIndex && // Vérifie que ce n'est pas le même imposteur
+                    index !== firstImpostorIndex &&
                     secondImpostorValue >= min &&
                     secondImpostorValue <= max
                 ) {
@@ -290,7 +454,35 @@ export function AmongUs() {
             });
         }
 
-        // Mise à jour des joueurs
+            /**
+             * it's a 2nd security checking for the 1st and 2nd impostor's value and weight's interval
+             */
+            while (firstImpostorIndex === secondImpostorIndex) {
+                const firstImpostorValue = calculateImpostorsValue(totalImpostorWeight);
+                const secondImpostorValue = calculateImpostorsValue(totalImpostorWeight);
+
+                // eslint-disable-next-line no-loop-func
+                players.forEach((player, index) => {
+                    if (
+                        firstImpostorIndex === -1 &&
+                        firstImpostorValue >= player.intervalImpostorWeight[0] &&
+                        firstImpostorValue <= player.intervalImpostorWeight[1]
+                    ) {
+                        firstImpostorIndex = index;
+                    } else if (
+                        secondImpostorIndex === -1 &&
+                        secondImpostorValue >= player.intervalImpostorWeight[0] &&
+                        secondImpostorValue <= player.intervalImpostorWeight[1]
+                    ) {
+                        secondImpostorIndex = index;
+                    }
+                });
+            }
+
+            /**
+             * after all these checkings, we change player's according to their weight interval
+             * and 1st / 2nd impostor's values
+             */
         let newPlayers = players.map((player, index) => {
             let updatedPlayer = { ...player };
 
@@ -319,7 +511,10 @@ export function AmongUs() {
         return newPlayers;
     }
 
-
+        /**
+         * @description - updates the player's values
+         * @param { Object } player - the player whose his values will be updated
+         */
     function updateValues(player) {
         let updatedPlayer = player;
 
@@ -337,24 +532,12 @@ export function AmongUs() {
         calculateRoleVariance(updatedPlayer);
     }
 
-    function calculateRatioCrewmate(player) {
-        const nbCrewmate = player.nbCrewmate;
-        const nbImpostor = player.nbImpostor;
 
-        const total = nbImpostor + nbCrewmate;
-        player.ratioCrewmate = total > 0 ? nbCrewmate / total : 0;
-    }
-
-
-    function calculateRatioImpostor(player) {
-        const nbCrewmate = player.nbCrewmate;
-        const nbImpostor = player.nbImpostor;
-
-        const total = nbImpostor + nbCrewmate;
-        player.ratioImpostor = total > 0 ? nbImpostor / total : 0;
-    }
-
-    function basicRunGame() {
+    /**
+     * @description - this function runs only one new game
+     * @returns { void } - this function doesn't return anything
+     */
+    function runNewGame() {
         if (!Array.isArray(players) || players.length === 0) {
             console.error("Players array is invalid or empty.");
             return;
@@ -371,10 +554,10 @@ export function AmongUs() {
     }
 
 
-    function runNewGame() {
-        basicRunGame();
-    }
-
+        /**
+         *  @description - this function reset games counter and all player's properties
+         *  @returns { void } - this function doesn't return anything
+         */
     function resetGame() {
         setCount(0);
         setCountMulti(0);
@@ -392,17 +575,33 @@ export function AmongUs() {
         );
     }
 
+        /**
+         * @description - this function returns the impostor's number in Players
+         * @returns { number } - this function returns a number
+         */
     function controlImpostorNumber() {
         return players.filter(player => player.role === 'impostor').length;
     }
 
+
+        /**
+         * @description - determines player's role for simulating multiple runs
+         * @param { number } totalImpostorWeight = the sum of all player's impostor's weight (integer)
+         * @returns { Array } - this function returns an Array for the players state
+         */
     function determineRoleForMultipleRun(totalImpostorWeight) {
+            // impostors indexes to determine in which player's interval the 1st and 2nd impostor's values will be
         let firstImpostorIndex = -1;
         let secondImpostorIndex = -1;
 
+            /**
+             * the 1st and 2nd impostor's value && the 1st impostor's value calculating with calculateImpostorsValue()
+             * the value corresponds to a weight
+             * */
         const firstImpostorValue = calculateImpostorsValue(totalImpostorWeight);
         let secondImpostorValue;
 
+            // determines in which player's weight's interval the 1st impostor's value is
         players.forEach((player, index) => {
             const [min, max] = player.intervalImpostorWeight;
             if (firstImpostorValue >= min && firstImpostorValue <= max) {
@@ -410,14 +609,22 @@ export function AmongUs() {
             }
         });
 
-        // Assurer que le deuxième imposteur est bien différent du premier
+
+            // determines in which player's weight's interval the 2nd impostor's value is by :
         while (secondImpostorIndex === -1 || secondImpostorIndex === firstImpostorIndex) {
+                // calculating 2nd impostor's value with calculateImpostorsValue()
             secondImpostorValue = calculateImpostorsValue(totalImpostorWeight);
 
+                /**
+                 * checking that 2nd impostor's value isn't in the same weight's interval as the 1st value
+                 * because it's in the same interval, we will have only one impostor,
+                 * but it's not what we want in Among Us
+                 */
+            // eslint-disable-next-line no-loop-func
             players.forEach((player, index) => {
                 const [min, max] = player.intervalImpostorWeight;
                 if (
-                    index !== firstImpostorIndex && // Vérifie que ce n'est pas le même imposteur
+                    index !== firstImpostorIndex &&
                     secondImpostorValue >= min &&
                     secondImpostorValue <= max
                 ) {
@@ -426,10 +633,15 @@ export function AmongUs() {
             });
         }
 
+
+            /**
+             * it's a 2nd security checking for the 1st and 2nd impostor's value and weight's interval
+             */
         while (firstImpostorIndex === secondImpostorIndex) {
             const firstImpostorValue = calculateImpostorsValue(totalImpostorWeight);
             const secondImpostorValue = calculateImpostorsValue(totalImpostorWeight);
 
+            // eslint-disable-next-line no-loop-func
             players.forEach((player, index) => {
                 if (
                     firstImpostorIndex === -1 &&
@@ -447,6 +659,10 @@ export function AmongUs() {
             });
         }
 
+            /**
+             * after all these checkings, we change player's according to their weight interval
+             * and 1st / 2nd impostor's values
+             */
         let newPlayers = players.map((player, index) => {
             if (index === firstImpostorIndex || index === secondImpostorIndex) {
                 setPlayerToImpostor(player);
@@ -463,16 +679,20 @@ export function AmongUs() {
 
         setPlayers(newPlayers);
 
-        console.log("Nombre d'imposteurs après plusieurs runs:", controlImpostorNumber());
+            // last impostor's number checking
+        console.log("Impostor's number after many runs:", controlImpostorNumber());
         if (controlImpostorNumber() !== 2) {
-            console.error("Erreur ! Le nombre d'imposteurs est incorrect après un run multiple.");
+            console.error("Error ! The impostor's number is incorrect !");
         }
 
         return newPlayers;
     }
 
 
-
+    /**
+     * @description - this function run game's simulation
+     * @returns { state } players - this function returns the updated players state
+     */
     function runGameSimulation() {
         if (!Array.isArray(players) || players.length === 0) {
             console.error("Players array is invalid or empty.");
@@ -487,6 +707,10 @@ export function AmongUs() {
         return players;
     }
 
+    /**
+     * @description - this function multiple games
+     * @param { number } nbGames - the number of game runs
+     */
     function runMultipleGames(nbGames) {
         let newPlayers = [...players];
 
@@ -501,47 +725,10 @@ export function AmongUs() {
     }
 
 
-    function calculateRoleDifference(player) {
-        const nbCrewmate = player.nbCrewmate;
-        const nbImpostor = player.nbImpostor;
-
-        player.roleDifference = Math.abs(nbCrewmate - nbImpostor);
-
-        return player.roleDifference;
-    }
-
-    function calculateGlobalImbalance() {
-        let totalDifference = 0;
-
-        players.forEach(player => {
-            const crewmateGames = player.nbCrewmate;
-            const impostorGames = player.nbImpostor;
-
-            const difference = Math.abs(crewmateGames - impostorGames);
-            totalDifference += difference;
-        });
-
-        return totalDifference;
-    }
-
-
-    function calculateRoleVariance(player) {
-        const nbCrewmate = player.nbCrewmate;
-        const nbImpostor = player.nbImpostor;
-
-        const gamesPlayed = nbCrewmate + nbImpostor;
-        const average = gamesPlayed / 2;
-
-        player.variance = Math.abs(nbCrewmate - average) + Math.abs(nbImpostor - average);
-    }
-
-
 
     return (
         <main>
-            <header>
-                <h1>PROJECT "My Little impostor's algorithm"</h1>
-            </header>
+
             <section>
                 <section className="intro">
                     {gameStarted ? <h2>Game n°{ count + countMulti }</h2> : <h2>Run your first game</h2>}
@@ -553,43 +740,43 @@ export function AmongUs() {
                     <button type="submit" id="run" className="btn"
                             onClick={runNewGame}
                     >
-                        Run game
+                        🚀 Run game
                     </button>
                     <button type="submit" id="multiple" className="btn"
                             onClick={() => runMultipleGames(10)}
                     >
-                        Run 10 games
+                        🔁 Run 10 games
                     </button>
                     <button type="submit" id="multiple" className="btn"
                             onClick={() => runMultipleGames(25)}
                     >
-                        Run 25 games
+                        🔁 Run 25 games
                     </button>
                     <button type="submit" id="multiple" className="btn"
                             onClick={() => runMultipleGames(50)}
                     >
-                        Run 50 games
+                        🔁 Run 50 games
                     </button>
                     <button type="submit" id="multiple" className="btn"
                             onClick={() => runMultipleGames(100)}
                     >
-                        Run 100 games
+                        🔁 Run 100 games
                     </button>
                 </section>
                 <section>
                     <button type="submit" id="reset" className="btn"
                             onClick={resetGame}
                     >
-                        Reset game
+                        🔄 Reset game
                     </button>
                 </section>
             </section>
-            <section className="global-stats" style={{opacity: !gameStarted ? 0 : 1}}>
-                <h3>Statistics :</h3>
-                <p>Global Imbalance : {calculateGlobalImbalance()}</p>
-                <p>Average ratio crewmates : {(calculateAverageCrewmateRatio() * 100).toFixed(2)} %</p>
-                <p>Average ratio impostors : {(calculateAverageImpostorRatio() * 100).toFixed(2)} %</p>
-            </section>
+            <Statistics
+                globalImbalance={ calculateGlobalImbalance()}
+                crewmateRatio={calculateAverageCrewmateRatio()}
+                impostorRatio={calculateAverageImpostorRatio()}
+                gameStarted={gameStarted}
+            />
             <section className="players-list">
                 {players.map(player => (
                     <Player player={player} gameStarted={gameStarted} key={player.id}/>
@@ -601,34 +788,34 @@ export function AmongUs() {
                     <button type="submit" id="run" className="btn"
                             onClick={runNewGame}
                     >
-                        Run game
+                        🚀 Run game
                     </button>
                     <button type="submit" id="multiple" className="btn"
                             onClick={() => runMultipleGames(10, count + countMulti - 1)}
                     >
-                        Run 10 games
+                        🔁 Run 10 games
                     </button>
                     <button type="submit" id="multiple" className="btn"
                             onClick={() => runMultipleGames(25)}
                     >
-                        Run 25 games
+                        🔁 Run 25 games
                     </button>
                     <button type="submit" id="multiple" className="btn"
                             onClick={() => runMultipleGames(50)}
                     >
-                        Run 50 games
+                        🔁 Run 50 games
                     </button>
                     <button type="submit" id="multiple" className="btn"
                             onClick={() => runMultipleGames(100)}
                     >
-                        Run 100 games
+                        🔁 Run 100 games
                     </button>
                 </section>
                 <section>
                     <button type="submit" id="reset" className="btn"
                             onClick={resetGame}
                     >
-                        Reset game
+                        🔄 Reset game
                     </button>
                 </section>
             </section>

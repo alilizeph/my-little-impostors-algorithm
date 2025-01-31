@@ -1,0 +1,14 @@
+header {
+    width: 99%;
+    margin: 0.25%;
+    text-align: center;
+    border: 5px solid white;
+    color:black;
+    background-color: rgba(225, 225, 225, 0.5);
+}
+
+header h1 {
+    font-weight: 800;
+    text-transform: capitalize;
+    font-size: 36px;
+}

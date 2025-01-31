@@ -1,0 +1,32 @@
+article {
+    width: 100%;
+    justify-content: center;
+    font-weight: 500;
+    border-radius: 1.25em;
+}
+
+article .global-stats {
+    width: 80%;
+    justify-content: center;
+    margin: 50px auto;
+    border: 5px solid white;
+    padding: 1%;
+    color:black;
+    background-color: rgba(225, 225, 225, 0.5);
+    border-radius: 1.25em;
+    box-shadow: 4px 3px 3px rgba(175, 175, 175, 0.25);
+}
+
+.global-stats h3 {
+    text-transform: uppercase;
+    text-decoration: underline;
+    text-align: center;
+    font-size: 32px;
+    margin-top: 10px;
+    font-weight: 800;
+}
+
+.global-stats p {
+    margin : 20px;
+    font-size: 18px;
+}

@@ -4,9 +4,14 @@
 
 **Among us** is a videogame based on a system of impostors and crewmates :
 - If you're an **impostor** your role is to kill the **crewmates**, you have to simulate tasks to deceive them and do sabotages.
+
+
 - If you're a **crewmate** you have to survive and make some tasks.
 
+
 - If all **crewmates** died, **impostors win** (by killing, sabotaging, ...)
+
+
 - If all **impostors** win when they finish their all tasks or if they unmask **impostors**.
 
 ---------------
@@ -29,7 +34,11 @@ After that, I'll probably add many buttons as one which generate 5 or 10 games.
 
 I'll too introduce some statistics to see if my algorithm is correctly balanced :
 - for each player
+
+
 - for each "run"
+
+
 - for each "stream"
 
 For the moment, I just made a simple switch() for the impostor's algorithm, but I will complexify it soon.
@@ -37,7 +46,9 @@ For the moment, I just made a simple switch() for the impostor's algorithm, but 
 
 ## How to run this project
 
-1) You need to download and install Node.JS here : [https://nodejs.org/en/download](https://nodejs.org/en/download)
+1) You need to download and install Node.js here : [https://nodejs.org/en/download](https://nodejs.org/en/download)
+
+
 2) Download my project by :
    - opening the project's GitHub : [https://github.com/alilizeph/my-little-impostors-algorithm/tree/main](https://github.com/alilizeph/my-little-impostors-algorithm/tree/main)
    - clicking on "< > Code" button
@@ -46,6 +57,8 @@ For the moment, I just made a simple switch() for the impostor's algorithm, but 
 
 
 3) Open your console and go to the project's location
+
+
 4) Then, run these commands in your console :
 > npm update
 
@@ -59,24 +72,56 @@ Have a good day
 
 -------
 
-BUFFARD Alexandre, full stack web developer
+## Project Versions
+
+### Update 1.0 (28/01/2025 - 29/01/2025)
+
+- **Creating basics functionalities** with :
+  - **parent component** : AmongUs
+  - **state** containing **Players list**
+  - **functions and buttons** to **run game** and reset **all games**
+  - **child component** : Player containing player's datas
+  - functions to **calculate statistics** like crewmate/impostor **ratio or variance**
+  - other functions to calculate **"global statistics"** like **global imbalance** or **average ratio**
+
+### Update 1.1 (29/01/2025 - 30/01/2025)
+
+- **adding many buttons** to run **multiple games** (x10, x25, x50, x100)
+
+### Update 1.2 (31/01/2025)
+
+- **Adding comments** to explain **AmongUs component's functions** and **reorganization of these**.
+
+
+- **Separating AmongUs parts** by creating **new child components** : **Header**, **Footer**, **Statistics** 
+
+
+- **adding more styles** in relation with Among Us theme (space theme) with a new background and adapted colors
+
+
+- **adding** emojis to **better differentiate and highlight players and some functionalities**
+
+-------
+
+**© 2025 Alexandre BUFFARD. All rights reserved.**
+
+This project, including its source code and associated content, is protected by copyright laws. Any unauthorized reproduction, distribution, or use, in whole or in part, is strictly prohibited without prior written permission from the author.
+
+For any inquiries or permission requests, please contact: [buffardalex492@hotmail.fr]("buffardalex492@hotmail.fr").
+
+--------------
+
+**© 2025 Alexandre BUFFARD. Tous droits réservés.**
+
+Ce projet, incluant son code source et ses contenus associés, est protégé par les lois relatives aux droits d'auteur. Toute reproduction, distribution ou utilisation non autorisée, en tout ou en partie, est strictement interdite sans l'accord préalable écrit de l'auteur.
+
+Pour toute question ou demande d'autorisation, veuillez contacter : [buffardalex492@hotmail.fr]("buffardalex492@hotmail.fr").
+
+
+-------
+
+**BUFFARD Alexandre, full stack web developer**
 
 @ : [buffaralex492@hotmail.fr](buffardalex492@hotmail.fr)
 
 LinkedIn profile : [https://www.linkedin.com/in/alexandre-buffard-973997153/](https://www.linkedin.com/in/alexandre-buffard-973997153/)
-
--------
-
-© 2025 Alexandre BUFFARD. All rights reserved.
-
-This project, including its source code and associated content, is protected by copyright laws. Any unauthorized reproduction, distribution, or use, in whole or in part, is strictly prohibited without prior written permission from the author.
-
-For any inquiries or permission requests, please contact: [buffardalex492@hotmail.fr](buffardalex492@hotmail.fr).
-
---------------
-
-© 2025 Alexandre BUFFARD. Tous droits réservés.
-
-Ce projet, incluant son code source et ses contenus associés, est protégé par les lois relatives aux droits d'auteur. Toute reproduction, distribution ou utilisation non autorisée, en tout ou en partie, est strictement interdite sans l'accord préalable écrit de l'auteur.
-
-Pour toute question ou demande d'autorisation, veuillez contacter : [buffardalex492@hotmail.fr](buffardalex492@hotmail.fr).
