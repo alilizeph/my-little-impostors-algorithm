@@ -314,6 +314,7 @@ export function AmongUs(totalImpostorWeight) {
         return total / 10;
     }
 
+    
 
 
                 // FUNCTION CALCULATING GLOBAL PROPERTIES
@@ -369,12 +370,76 @@ export function AmongUs(totalImpostorWeight) {
 
 
     /**
+     *  @description - this function fills the streak's list to the players role
+     * @param { string } role - the player's role
+     * @param { Array } streaksList - the streak's list
+     * @return null - this function returns nothing
+     */
+    function addToStreaksList(role = 'impostor' | 'crewmate', streaksList) {
+        // eslint-disable-next-line no-unused-expressions
+        role === 'impostor' ?
+            players.forEach((player, index) => {
+                streaksList[index] = player.streakImpostor;
+            })
+        : role === 'crewmate' ?
+                players.forEach((player, index) => {
+                    streaksList[index] = player.streakCrewmate;
+                })
+        : null;
+    }
+
+
+    /**
+     *  @description - this function calculates the standard deviation to the players role (if we want to determine
+     *      this value for impostors or for crewmates)
+     * @param { string } role - the player's role
+     * @return { number } - this function returns number corresponding to the role's standard deviation
+     */
+    function calculateStandardDeviation(role = 'impostor' | 'crewmate') {
+        let streaksList = [];
+        let length = 0;
+        let average = 0;
+        let variance = 0;
+
+        if(players.length === 0) {
+            return 0;
+        } else {
+            // eslint-disable-next-line no-unused-expressions
+            role === 'impostor' ?
+                addToStreaksList("impostor", streaksList) :
+            role === 'crewmate' ?
+                 addToStreaksList("crewmate", streaksList) : null
+
+            length = streaksList.length;
+
+            if (role === "impostor") {
+                average = streaksList.reduce((a, b) => a + b, 0) / length;
+                variance = streaksList.reduce((sum, x) => sum + Math.pow(x - average, 2), 0) / length;
+
+
+                return Math.sqrt(variance);
+            } else if (role === "crewmate") {
+                average = streaksList.reduce((a, b) => a + b, 0) / length;
+                variance = streaksList.reduce((sum, x) => sum + Math.pow(x - average, 2), 0) / length;
+
+                return Math.sqrt(variance);
+            } else {
+                alert.error("ROLE ERROR : Please enter 'crewmate' or 'impostor' to the function !");
+
+                return 0;
+            }
+        }
+    }
+
+
+
+        /**
          *  @description - corresponding to each update weight's updates
          *  @const { Array } levelsImpostor - each updates when player.streakImpostor is updated
          *  @const { Array } levelsCrewmate - each updates when player.streakCrewmate is updated
          * */
-    const levelsImpostor = [80, 60, 40, 25, 15, 5];
-    const levelsCrewmate = [100, 100, 120, 130, 150, 200, 300];
+    const levelsImpostor = [70, 55, 40, 15, 5, 0];
+    const levelsCrewmate = [250, 500, 5000, 10000];
 
         /**
          * @description - updates the impostor's weight after the role is changed
@@ -386,13 +451,26 @@ export function AmongUs(totalImpostorWeight) {
             let index = Math.min(player.streakImpostor - 1, levelsImpostor.length - 1);
             player.impostorWeight = levelsImpostor[index] ?? 100; // Sécurité si tableau vide
         } else if (player.streakCrewmate > 0) {
-            let index = Math.min(player.streakCrewmate - 1, levelsCrewmate.length - 1);
+            let index = Math.min(player.streakCrewmate - 1, levelsCrewmate - 1);
             player.impostorWeight = levelsCrewmate[index] ?? 100;
         } else {
             player.impostorWeight = 100;
         }
 
         updateIntervalImpostors(player);
+    }
+
+
+        /**
+         * @description - this function randomized the players array state
+         * @returns {Array} - this function returns a randomized players array
+         */
+    function randomizePlayers(list) {
+        return list.map(player => ({
+            player, sort: Math.random()
+        })
+        ).sort((a, b) => a.sort - b.sort
+        ).map(({player}) => player);
     }
 
 
@@ -412,6 +490,8 @@ export function AmongUs(totalImpostorWeight) {
          *  @returns { state } - the updated player's list
          * */
     function determinePlayerRole(totalImpostorWeight) {
+        let randomizedPlayers = randomizePlayers(players);
+
             // impostors indexes to determine in which player's interval the 1st and 2nd impostor's values will be
         let firstImpostorIndex = -1;
         let secondImpostorIndex = -1;
@@ -424,7 +504,7 @@ export function AmongUs(totalImpostorWeight) {
         let secondImpostorValue;
 
             // determines in which player's weight's interval the 1st impostor's value is
-        players.forEach((player, index) => {
+            randomizedPlayers.forEach((player, index) => {
             const [min, max] = player.intervalImpostorWeight;
             if (firstImpostorValue >= min && firstImpostorValue <= max) {
                 firstImpostorIndex = index;
@@ -442,12 +522,37 @@ export function AmongUs(totalImpostorWeight) {
              * but it's not what we want in Among Us
              */
             // eslint-disable-next-line no-loop-func
-            players.forEach((player, index) => {
+            randomizedPlayers.forEach((player, index) => {
                 const [min, max] = player.intervalImpostorWeight;
                 if (
                     index !== firstImpostorIndex &&
                     secondImpostorValue >= min &&
                     secondImpostorValue <= max
+                )
+                    secondImpostorIndex = index;
+            });
+        }
+
+
+            /**
+             * it's a 2nd security checking for the 1st and 2nd impostor's value and weight's interval
+             */
+        while (firstImpostorIndex === secondImpostorIndex) {
+            const firstImpostorValue = calculateImpostorsValue(totalImpostorWeight);
+            const secondImpostorValue = calculateImpostorsValue(totalImpostorWeight);
+
+            // eslint-disable-next-line no-loop-func
+            randomizedPlayers.forEach((player, index) => {
+                if (
+                    firstImpostorIndex === -1 &&
+                    firstImpostorValue >= player.intervalImpostorWeight[0] &&
+                    firstImpostorValue <= player.intervalImpostorWeight[1]
+                ) {
+                    firstImpostorIndex = index;
+                } else if (
+                    secondImpostorIndex === -1 &&
+                    secondImpostorValue >= player.intervalImpostorWeight[0] &&
+                    secondImpostorValue <= player.intervalImpostorWeight[1]
                 ) {
                     secondImpostorIndex = index;
                 }
@@ -455,49 +560,32 @@ export function AmongUs(totalImpostorWeight) {
         }
 
             /**
-             * it's a 2nd security checking for the 1st and 2nd impostor's value and weight's interval
-             */
-            while (firstImpostorIndex === secondImpostorIndex) {
-                const firstImpostorValue = calculateImpostorsValue(totalImpostorWeight);
-                const secondImpostorValue = calculateImpostorsValue(totalImpostorWeight);
-
-                // eslint-disable-next-line no-loop-func
-                players.forEach((player, index) => {
-                    if (
-                        firstImpostorIndex === -1 &&
-                        firstImpostorValue >= player.intervalImpostorWeight[0] &&
-                        firstImpostorValue <= player.intervalImpostorWeight[1]
-                    ) {
-                        firstImpostorIndex = index;
-                    } else if (
-                        secondImpostorIndex === -1 &&
-                        secondImpostorValue >= player.intervalImpostorWeight[0] &&
-                        secondImpostorValue <= player.intervalImpostorWeight[1]
-                    ) {
-                        secondImpostorIndex = index;
-                    }
-                });
-            }
-
-            /**
              * after all these checkings, we change player's according to their weight interval
              * and 1st / 2nd impostor's values
              */
-        let newPlayers = players.map((player, index) => {
+            randomizedPlayers = randomizedPlayers.map((player, index) => {
             let updatedPlayer = { ...player };
 
-            if (index === firstImpostorIndex || index === secondImpostorIndex) {
+            if(index === firstImpostorIndex || index === secondImpostorIndex)
                 setPlayerToImpostor(updatedPlayer);
-            } else {
+            else
                 setPlayerToCrewmate(updatedPlayer);
-            }
 
             updateValues(updatedPlayer);
             updateStreaks(updatedPlayer);
+
             setImpostorWeight(updatedPlayer);
 
             return updatedPlayer;
         });
+
+        //randomizedPlayers = randomizePlayers(randomizedPlayers);
+
+        let newPlayers = players.map((player, index) => {
+            return { ...player, ...randomizedPlayers[index]};
+        });
+
+        newPlayers = newPlayers.sort((a, b) => a.id - b.id);
 
         setPlayers(newPlayers);
 
@@ -590,19 +678,22 @@ export function AmongUs(totalImpostorWeight) {
          * @returns { Array } - this function returns an Array for the players state
          */
     function determineRoleForMultipleRun(totalImpostorWeight) {
-            // impostors indexes to determine in which player's interval the 1st and 2nd impostor's values will be
+            // 1st players randomizing
+        let randomizedPlayers = randomizePlayers(players);
+
+        // impostors indexes to determine in which player's interval the 1st and 2nd impostor's values will be
         let firstImpostorIndex = -1;
         let secondImpostorIndex = -1;
 
-            /**
-             * the 1st and 2nd impostor's value && the 1st impostor's value calculating with calculateImpostorsValue()
-             * the value corresponds to a weight
-             * */
+        /**
+         * the 1st and 2nd impostor's value && the 1st impostor's value calculating with calculateImpostorsValue()
+         * the value corresponds to a weight
+         * */
         const firstImpostorValue = calculateImpostorsValue(totalImpostorWeight);
         let secondImpostorValue;
 
-            // determines in which player's weight's interval the 1st impostor's value is
-        players.forEach((player, index) => {
+        // determines in which player's weight's interval the 1st impostor's value is
+        randomizedPlayers.forEach((player, index) => {
             const [min, max] = player.intervalImpostorWeight;
             if (firstImpostorValue >= min && firstImpostorValue <= max) {
                 firstImpostorIndex = index;
@@ -610,18 +701,18 @@ export function AmongUs(totalImpostorWeight) {
         });
 
 
-            // determines in which player's weight's interval the 2nd impostor's value is by :
+        // determines in which player's weight's interval the 2nd impostor's value is by :
         while (secondImpostorIndex === -1 || secondImpostorIndex === firstImpostorIndex) {
-                // calculating 2nd impostor's value with calculateImpostorsValue()
+            // calculating 2nd impostor's value with calculateImpostorsValue()
             secondImpostorValue = calculateImpostorsValue(totalImpostorWeight);
 
-                /**
-                 * checking that 2nd impostor's value isn't in the same weight's interval as the 1st value
-                 * because it's in the same interval, we will have only one impostor,
-                 * but it's not what we want in Among Us
-                 */
+            /**
+             * checking that 2nd impostor's value isn't in the same weight's interval as the 1st value
+             * because it's in the same interval, we will have only one impostor,
+             * but it's not what we want in Among Us
+             */
             // eslint-disable-next-line no-loop-func
-            players.forEach((player, index) => {
+            randomizedPlayers.forEach((player, index) => {
                 const [min, max] = player.intervalImpostorWeight;
                 if (
                     index !== firstImpostorIndex &&
@@ -634,15 +725,15 @@ export function AmongUs(totalImpostorWeight) {
         }
 
 
-            /**
-             * it's a 2nd security checking for the 1st and 2nd impostor's value and weight's interval
-             */
+        /**
+         * it's a 2nd security checking for the 1st and 2nd impostor's value and weight's interval
+         */
         while (firstImpostorIndex === secondImpostorIndex) {
             const firstImpostorValue = calculateImpostorsValue(totalImpostorWeight);
             const secondImpostorValue = calculateImpostorsValue(totalImpostorWeight);
 
             // eslint-disable-next-line no-loop-func
-            players.forEach((player, index) => {
+            randomizedPlayers.forEach((player, index) => {
                 if (
                     firstImpostorIndex === -1 &&
                     firstImpostorValue >= player.intervalImpostorWeight[0] &&
@@ -659,11 +750,7 @@ export function AmongUs(totalImpostorWeight) {
             });
         }
 
-            /**
-             * after all these checkings, we change player's according to their weight interval
-             * and 1st / 2nd impostor's values
-             */
-        let newPlayers = players.map((player, index) => {
+            randomizedPlayers = randomizedPlayers.map((player, index) => {
             if (index === firstImpostorIndex || index === secondImpostorIndex) {
                 setPlayerToImpostor(player);
             } else {
@@ -677,9 +764,22 @@ export function AmongUs(totalImpostorWeight) {
             return player;
         });
 
+            // 2nd players randomizing
+        //randomizedPlayers = randomizePlayers(randomizedPlayers);
+
+        /**
+         * after all these checkings, we change player's according to their weight interval
+         * and 1st / 2nd impostor's values
+         */
+        let newPlayers = players.map((player, index) => {
+            return { ...player, ...randomizedPlayers[index] }
+        });
+
+        newPlayers = newPlayers.sort((a, b) => a.id - b.id);
+
         setPlayers(newPlayers);
 
-            // last impostor's number checking
+        // last impostor's number checking
         console.log("Impostor's number after many runs:", controlImpostorNumber());
         if (controlImpostorNumber() !== 2) {
             console.error("Error ! The impostor's number is incorrect !");
@@ -772,10 +872,12 @@ export function AmongUs(totalImpostorWeight) {
                 </section>
             </section>
             <Statistics
-                globalImbalance={ calculateGlobalImbalance()}
-                crewmateRatio={calculateAverageCrewmateRatio()}
-                impostorRatio={calculateAverageImpostorRatio()}
+                globalImbalance={ calculateGlobalImbalance() }
+                crewmateRatio={ calculateAverageCrewmateRatio() }
+                impostorRatio={ calculateAverageImpostorRatio() }
                 gameStarted={gameStarted}
+                impostorsStandardDeviation={ calculateStandardDeviation('impostor') }
+                crewmateStandardDeviation={ calculateStandardDeviation('crewmate') }
             />
             <section className="players-list">
                 {players.map(player => (
