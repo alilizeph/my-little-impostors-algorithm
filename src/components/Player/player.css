@@ -3,6 +3,7 @@
     margin: 15px 2.5% 25px 2.5%;
     text-align: center;
     border-radius: 1.25em;
+    color:rgb(15, 15, 25);
     background-color: rgba(225, 225, 225, 0.75);
 }
 
@@ -31,4 +32,5 @@
 
 .stats {
     font-size: 15px;
+    font-weight: 700;
 }

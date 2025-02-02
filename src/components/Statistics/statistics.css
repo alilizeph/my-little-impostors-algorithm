@@ -11,7 +11,7 @@ article .global-stats {
     margin: 50px auto;
     border: 5px solid white;
     padding: 1%;
-    color:black;
+    color:rgb(15, 15, 25);
     background-color: rgba(225, 225, 225, 0.5);
     border-radius: 1.25em;
     box-shadow: 4px 3px 3px rgba(175, 175, 175, 0.25);

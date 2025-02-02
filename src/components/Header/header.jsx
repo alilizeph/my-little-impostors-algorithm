@@ -1,9 +1,11 @@
-import "./header.css"
+import "./header.css";
+import logo from './logo1.png';
 
 export function Header() {
     return (
         <header>
-            <h1>🌌 PROJECT "My Little impostor's algorithm" 🌌</h1>
+            <img src={ logo } alt="logo" />
+            <h1>My Little impostor's algorithm</h1>
         </header>
     );
 }

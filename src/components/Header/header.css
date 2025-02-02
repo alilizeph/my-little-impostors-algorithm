@@ -3,8 +3,14 @@ header {
     margin: 0.25%;
     text-align: center;
     border: 5px solid white;
-    color:black;
+    display: flex;
+    justify-content: center;
     background-color: rgba(225, 225, 225, 0.5);
+}
+
+header img {
+    height: 75px;
+    margin: 10px 2.5%;
 }
 
 header h1 {
