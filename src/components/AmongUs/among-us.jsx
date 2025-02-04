@@ -639,6 +639,8 @@ export function AmongUs(totalImpostorWeight) {
 
         setCount(count + 1);
         setGameStarted(true);
+        // eslint-disable-next-line no-unused-expressions
+        isFilteredByRole ? filterPlayersByRole() : null;
     }
 
 
@@ -803,6 +805,7 @@ export function AmongUs(totalImpostorWeight) {
         const newPlayers = determineRoleForMultipleRun(totalImpostorWeight, players);
 
         setPlayers(newPlayers);
+        cancelFilter();
 
         return players;
     }
@@ -822,8 +825,41 @@ export function AmongUs(totalImpostorWeight) {
 
         setGameStarted(true);
         setCountMulti(countMulti + nbGames);
+        // eslint-disable-next-line no-unused-expressions
+        isFilteredByRole ? filterPlayersByRole() : null;
     }
 
+    /**
+     * @const { state } isFilteredByRole - boolean to determine which array between playersFilteredByRole and players will be chosen
+     */
+    const [isFilteredByRole, setIsFilteredByRole] = useState(false);
+
+    const [playersImpostored, setPlayersImpostored] = useState([]);
+    const [playersCrewmated, setPlayersCrewmated] = useState([]);
+
+    /**
+     * @description - this function filters players' array is the playersFilteredByRole array to better show who is impostor or crewmate
+     * @returns null - this function doesn't return anything
+     */
+    function filterPlayersByRole() {
+        cancelFilter();
+
+        setIsFilteredByRole(true);
+
+        setPlayersImpostored([
+            ...players.filter(player => player.role === "impostor"),
+        ]);
+
+        setPlayersCrewmated([
+            ...players.filter(player => player.role === "crewmate"),
+        ]);
+    }
+
+    function cancelFilter() {
+        setPlayersImpostored([]);
+        setPlayersCrewmated([]);
+        setIsFilteredByRole(false);
+    }
 
 
     return (
@@ -831,7 +867,7 @@ export function AmongUs(totalImpostorWeight) {
 
             <section>
                 <section className="intro">
-                    {gameStarted ? <h2>Game n°{ count + countMulti }</h2> : <h2>Run your first game</h2>}
+                    {gameStarted ? <h2>Game n°{count + countMulti}</h2> : <h2>Run your first game</h2>}
                 </section>
             </section>
 
@@ -869,21 +905,44 @@ export function AmongUs(totalImpostorWeight) {
                     >
                         🔄 Reset game
                     </button>
+                    {
+                        gameStarted ? (<button type="submit" id="fiterByRole" className="btn"
+                                               onClick={filterPlayersByRole}
+                        >
+                            Filter players by role
+                        </button>) : null
+                    }
+                    {
+                        isFilteredByRole ? (<button type="submit" id="cancelRole" className="btn"
+                        onClick={cancelFilter}
+                >
+                    Cancel filter
+                </button>) : null
+                    }
                 </section>
             </section>
             <Statistics
-                globalImbalance={ calculateGlobalImbalance() }
-                crewmateRatio={ calculateAverageCrewmateRatio() }
-                impostorRatio={ calculateAverageImpostorRatio() }
+                globalImbalance={calculateGlobalImbalance()}
+                crewmateRatio={calculateAverageCrewmateRatio()}
+                impostorRatio={calculateAverageImpostorRatio()}
                 gameStarted={gameStarted}
-                impostorsStandardDeviation={ calculateStandardDeviation('impostor') }
-                crewmateStandardDeviation={ calculateStandardDeviation('crewmate') }
+                impostorsStandardDeviation={calculateStandardDeviation('impostor')}
+                crewmateStandardDeviation={calculateStandardDeviation('crewmate')}
             />
             <section className="players-list">
-                {players.map(player => (
+                {(isFilteredByRole ? <h4 className="filter-1" style={{textDecoration: "underline #b61515"}}>Impostor's' list after filtering</h4> : null)}
+                {(isFilteredByRole ? playersImpostored : players).map(player => (
                     <Player player={player} gameStarted={gameStarted} key={player.id}/>
                 ))}
             </section>
+            <section className="players-list" style={{ marginTop: '55px'}}>
+                { (isFilteredByRole ? <h4 className="filter-1" style={{textDecoration: "underline #125e22"}}>Crewmate's list after filtering</h4> : null)}
+                {(isFilteredByRole ? playersCrewmated : []).map(player => (
+                    <Player player={player} gameStarted={gameStarted} key={player.id}/>
+                ))}
+            </section>
+
+
             <section className="btns">
                 <section>
 
@@ -919,6 +978,20 @@ export function AmongUs(totalImpostorWeight) {
                     >
                         🔄 Reset game
                     </button>
+                    {
+                        gameStarted ? (<button type="submit" id="fiterByRole" className="btn"
+                                           onClick={filterPlayersByRole}
+                        >
+                            Filter players by role
+                        </button>) : null
+                    }
+                    {
+                        isFilteredByRole ? (<button type="submit" id="cancelRole" className="btn"
+                                                    onClick={cancelFilter}
+                        >
+                            Cancel filter
+                        </button>) : null
+                    }
                 </section>
             </section>
         </main>

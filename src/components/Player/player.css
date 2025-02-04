@@ -34,3 +34,10 @@
     font-size: 15px;
     font-weight: 700;
 }
+
+.filter-1 {
+    font-size: 26px;
+    text-align:center;
+    color:white;
+    text-transform: uppercase;
+}
